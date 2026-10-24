@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { submitOffer, updateOffer, cancelOffer } from "../services/api.js";
 
 // Shravya: Restaurant Partner experience.
-// Local React state only — no API calls yet. The natural-language message is
-// preserved EXACTLY as entered because it will later be sent to Amazon Bedrock
-// for AI extraction. "Cancelled" is a terminal state (mirrors the Python
-// restaurant_offer workflow): once cancelled, an offer can no longer be updated.
+// Talks to the backend /offers endpoints via the restaurant_offer workflow.
+// The natural-language message is preserved EXACTLY as entered (never trimmed
+// or reformatted) because it is sent to Amazon Bedrock for AI extraction
+// downstream. "Cancelled" is a terminal state (mirrors the Python workflow):
+// once cancelled, an offer can no longer be updated.
 
 // Mock shelter need (hardcoded for the MVP demo).
 const MOCK_NEED = {
@@ -13,66 +15,102 @@ const MOCK_NEED = {
   readyBy: "6:00 PM",
 };
 
+// The backend returns lowercase statuses (active/updated/cancelled). Display
+// them capitalized WITHOUT changing the stored value from the backend.
+function displayStatus(status) {
+  if (!status) return "";
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 export default function RestaurantPortal() {
   // Form inputs.
   const [restaurantName, setRestaurantName] = useState("");
   const [message, setMessage] = useState("");
 
-  // The submitted offer lives here once "Submit Offer" is pressed.
-  // Shape: { restaurantName, message, status } | null
+  // The offer dict exactly as returned by the backend
+  // ({ offer_id, restaurant_name, message, status, created_at, updated_at }).
   const [offer, setOffer] = useState(null);
 
   // Inline-edit state for the Update flow.
   const [editing, setEditing] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
 
-  const isCancelled = offer?.status === "Cancelled";
+  // Network state so the UI never fails silently.
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event) {
+  const isCancelled = offer?.status === "cancelled";
+
+  async function handleSubmit(event) {
     event.preventDefault();
     // Preserve the message verbatim. Only guard against an empty submission.
     if (!restaurantName.trim() || !message.trim()) return;
-    setOffer({
-      restaurantName: restaurantName.trim(),
-      message, // exact natural-language text, untouched
-      status: "Active",
-    });
-    setEditing(false);
+    setLoading(true);
+    setError("");
+    try {
+      const saved = await submitOffer({
+        restaurant_name: restaurantName,
+        message, // exact natural-language text, untouched
+      });
+      setOffer(saved);
+      setEditing(false);
+    } catch (err) {
+      setError(err.message || "Could not submit the offer. Is the API running?");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function startEdit() {
     if (isCancelled) return; // terminal state guard
     setDraftMessage(offer.message);
+    setError("");
     setEditing(true);
   }
 
-  function saveEdit() {
+  async function handleSaveEdit() {
     if (isCancelled) return; // terminal state guard
-    // Reject an empty/whitespace-only draft, but store the original text
+    // Reject an empty/whitespace-only draft, but send the original text
     // untouched so the natural-language message stays intact for Bedrock.
     if (!draftMessage.trim()) return;
-    setOffer((prev) => ({
-      ...prev,
-      message: draftMessage, // exact text as edited, untouched
-      status: "Updated",
-    }));
+    setLoading(true);
+    setError("");
+    try {
+      const saved = await updateOffer(offer.offer_id, {
+        message: draftMessage, // exact text as edited, untouched
+      });
+      setOffer(saved);
+      setEditing(false);
+    } catch (err) {
+      setError(err.message || "Could not update the offer. Is the API running?");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleDiscardEdit() {
     setEditing(false);
   }
 
-  function cancelEdit() {
-    setEditing(false);
-  }
-
-  function cancelOffer() {
-    setEditing(false);
-    setOffer((prev) => ({ ...prev, status: "Cancelled" }));
+  async function handleCancelOffer() {
+    setLoading(true);
+    setError("");
+    try {
+      const saved = await cancelOffer(offer.offer_id);
+      setOffer(saved);
+      setEditing(false);
+    } catch (err) {
+      setError(err.message || "Could not cancel the offer. Is the API running?");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Map status -> pill class, reusing existing design tokens.
   const statusClass =
-    offer?.status === "Cancelled"
+    offer?.status === "cancelled"
       ? "offerStatus offerStatusCancelled"
-      : offer?.status === "Updated"
+      : offer?.status === "updated"
         ? "offerStatus offerStatusUpdated"
         : "offerStatus";
 
@@ -140,10 +178,12 @@ export default function RestaurantPortal() {
             />
           </label>
 
-          <button className="findButton" type="submit">
-            Submit Offer →
+          <button className="findButton" type="submit" disabled={loading}>
+            {loading && !offer ? "Submitting…" : "Submit Offer →"}
           </button>
         </form>
+
+        {error && !offer && <p className="errorMessage">{error}</p>}
       </section>
 
       {/* OFFER CONFIRMATION */}
@@ -156,9 +196,9 @@ export default function RestaurantPortal() {
           <div className="cardHeader">
             <div>
               <p className="eyebrow">YOUR OFFER</p>
-              <h2>{offer.restaurantName}</h2>
+              <h2>{offer.restaurant_name}</h2>
             </div>
-            <span className={statusClass}>{offer.status}</span>
+            <span className={statusClass}>{displayStatus(offer.status)}</span>
           </div>
 
           {editing ? (
@@ -173,13 +213,19 @@ export default function RestaurantPortal() {
                 />
               </label>
               <div className="offerActions">
-                <button className="findButton" type="button" onClick={saveEdit}>
-                  Save Changes
+                <button
+                  className="findButton"
+                  type="button"
+                  onClick={handleSaveEdit}
+                  disabled={loading}
+                >
+                  {loading ? "Saving…" : "Save Changes"}
                 </button>
                 <button
                   className="outlineButton"
                   type="button"
-                  onClick={cancelEdit}
+                  onClick={handleDiscardEdit}
+                  disabled={loading}
                 >
                   Discard
                 </button>
@@ -200,20 +246,24 @@ export default function RestaurantPortal() {
                     className="outlineButton"
                     type="button"
                     onClick={startEdit}
+                    disabled={loading}
                   >
                     Update Offer
                   </button>
                   <button
                     className="dangerButton"
                     type="button"
-                    onClick={cancelOffer}
+                    onClick={handleCancelOffer}
+                    disabled={loading}
                   >
-                    Cancel Offer
+                    {loading ? "Working…" : "Cancel Offer"}
                   </button>
                 </div>
               )}
             </>
           )}
+
+          {error && offer && <p className="errorMessage">{error}</p>}
         </section>
       )}
     </main>
