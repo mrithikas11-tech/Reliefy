@@ -7,3 +7,14 @@ class Offer(BaseModel):
     meals: int
     total_cost: float
     ready_time: str
+
+
+class SubmitOfferRequest(BaseModel):
+    """Body for POST /offers."""
+    restaurant_name: str
+    message: str
+
+
+class UpdateOfferRequest(BaseModel):
+    """Body for PUT /offers/{offer_id}."""
+    message: str
