@@ -1,8 +1,12 @@
 import { useState } from "react";
 import "./App.css";
 import { analyze } from "./services/api.js";
+import RestaurantPortal from "./components/RestaurantPortal.jsx";
 
 function App() {
+  // Which experience is shown. Coordinator stays the default so the existing
+  // experience is unchanged on load.
+  const [view, setView] = useState("coordinator");
   const [meals, setMeals] = useState("200");
   const [budget, setBudget] = useState("2000");
   const [deadline, setDeadline] = useState("18:00");
@@ -39,18 +43,45 @@ function App() {
     <div className="app">
       {/* NAVBAR */}
       <nav className="navbar">
-        <div className="logo">
+        <div
+          className="logo"
+          role="button"
+          tabIndex={0}
+          onClick={() => setView("coordinator")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setView("coordinator");
+          }}
+        >
           <div className="logoMark">R</div>
           <span>Reliefy</span>
         </div>
 
         <div className="navLinks">
           <a href="#how">How it works</a>
-          <a href="#restaurants">For Restaurants</a>
-          <button className="outlineButton">Coordinator</button>
+          <a
+            href="#restaurants"
+            onClick={(e) => {
+              e.preventDefault();
+              setView("restaurant");
+            }}
+          >
+            For Restaurants
+          </a>
+          <button
+            className="outlineButton"
+            onClick={() => setView("coordinator")}
+          >
+            Coordinator
+          </button>
         </div>
       </nav>
 
+      {/* RESTAURANT PARTNER EXPERIENCE */}
+      {view === "restaurant" && <RestaurantPortal />}
+
+      {/* COORDINATOR EXPERIENCE (default, unchanged) */}
+      {view === "coordinator" && (
+      <>
       {/* HERO */}
       <main className="main">
         <section className="heroSection">
@@ -181,6 +212,8 @@ function App() {
             <p className="resultNote">{result.note}</p>
           </div>
         </section>
+      )}
+      </>
       )}
 
       {/* HOW IT WORKS */}
