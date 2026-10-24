@@ -1,104 +1,70 @@
-# Reliefy — Restaurant Offer Workflow
+# Reliefy
 
-A lightweight, framework-agnostic Python module for the restaurant side of
-Reliefy. It lets a restaurant **submit**, **update**, and **cancel** a
-natural-language food offer during a disaster-relief event.
+AI-powered food procurement copilot for disaster-relief coordinators.
 
-This module has **no** dependencies beyond the Python standard library. It
-does **not** include FastAPI, React, AWS, boto3, Bedrock, or a database — it
-is meant to be imported and called by the team's FastAPI backend.
+## Team ownership
+- **Mrithika:** GitHub coordination, FastAPI backend, AWS Bedrock connection
+- **Zada:** React dashboard in `frontend/`
+- **Akshita:** offer schema and deterministic matching in `matching/`
+- **Shravya:** sample restaurant offers and cancellation scenarios in `data/`
+- **Manisha:** integration testing, demo script, and pitch in `docs/`
 
-> The restaurant's `message` is stored **exactly as written** and is never
-> parsed or modified here. The team's Amazon Bedrock step is responsible for
-> extracting quantity, price, food type, and ready time from `message`
-> downstream.
+## Quick start
 
-## Install / run
-
-No install needed. Requires Python 3.7+ (standard library only).
-
-Run the demo from the project root:
+### Backend
+Requires Python 3.10+.
 
 ```bash
-python3 examples/usage_demo.py
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# macOS/Linux:
+# source .venv/bin/activate
+python -m pip install -r requirements.txt
+uvicorn backend.main:app --reload
 ```
 
-## Offer JSON contract
+Open `http://127.0.0.1:8000/health` and `http://127.0.0.1:8000/docs`.
 
-Every operation returns a plain dict with this shape:
+The starter backend uses mock offers and does **not** call Bedrock yet. Add Bedrock in `backend/bedrock_client.py` after the end-to-end demo works.
+
+### Frontend
+Requires Node.js 18+.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Demo scenario
+- Shelter needs **200 meals**, budget **$2,000**, deadline **6:00 PM**.
+- Restaurant A: 80 meals for $640, ready 4:00 PM.
+- Restaurant B: 120 meals for $960, ready 5:00 PM.
+- Restaurant C: 60 meals for $600, ready 7:00 PM (too late).
+- Recommended: A + B = 200 meals for $1,600.
+- Cancellation twist: if B cancels, only 80 meals remain covered from A; shortfall is 120.
+
+## API contract
+`POST /analyze` request:
 
 ```json
 {
-  "offer_id": "a1b2c3d4",
-  "restaurant_name": "Tony's Kitchen",
-  "message": "We can prepare 80 vegetarian meals for $8 each, ready by 4 PM.",
-  "status": "active",
-  "created_at": "2026-10-23T18:00:00+00:00",
-  "updated_at": "2026-10-23T18:00:00+00:00"
+  "meals_needed": 200,
+  "budget": 2000,
+  "deadline": "18:00",
+  "restaurant_messages": [
+    "Restaurant A offers 80 meals for $640, ready at 4:00 PM",
+    "Restaurant B offers 120 meals for $960, ready at 5:00 PM",
+    "Restaurant C offers 60 meals for $600, ready at 7:00 PM"
+  ]
 }
 ```
 
-| Field             | Type   | Notes                                                        |
-| ----------------- | ------ | ------------------------------------------------------------ |
-| `offer_id`        | string | Generated on submit. Use it to update/cancel.                |
-| `restaurant_name` | string | Required, non-empty. Leading/trailing whitespace stripped.   |
-| `message`         | string | Required, non-empty. Raw natural language, left unparsed.    |
-| `status`          | string | One of `active`, `updated`, `cancelled`.                     |
-| `created_at`      | string | ISO 8601 UTC timestamp, set on submit.                       |
-| `updated_at`      | string | ISO 8601 UTC timestamp, refreshed on update/cancel.          |
+The response includes `meals_covered`, `total_cost`, `shortfall`, `status`, and selected offers.
 
-### Status values and transitions
-
-- `active` — set when an offer is first submitted.
-- `updated` — set when the message is changed.
-- `cancelled` — set when the offer is cancelled. Terminal: a cancelled
-  offer cannot be updated or cancelled again.
-
-```
-submit  -> active
-update  -> updated      (not allowed if already cancelled)
-cancel  -> cancelled    (not allowed if already cancelled)
-```
-
-## API
-
-```python
-from restaurant_offer import submit_offer, update_offer, cancel_offer
-```
-
-### `submit_offer(restaurant_name, message) -> dict`
-Strips whitespace from `restaurant_name`, generates an `offer_id`, sets
-`status="active"`, sets `created_at` and `updated_at`, stores the offer, and
-returns it. The `message` is stored exactly as entered.
-
-### `update_offer(offer_id, message) -> dict`
-Finds the offer, replaces `message`, sets `status="updated"`, refreshes
-`updated_at`, and returns it.
-
-### `cancel_offer(offer_id) -> dict`
-Finds the offer, sets `status="cancelled"`, refreshes `updated_at`, and
-returns it.
-
-## Validation and errors
-
-- `ValueError` — raised for invalid input or invalid state:
-  - empty `restaurant_name`
-  - empty `message`
-  - attempting to update a `cancelled` offer
-  - attempting to cancel an already-`cancelled` offer
-- `KeyError` — raised when `offer_id` does not exist (on update/cancel).
-
-Suggested mapping for the FastAPI layer:
-
-| Exception    | HTTP status |
-| ------------ | ----------- |
-| `ValueError` | 400         |
-| `KeyError`   | 404         |
-
-## Integration notes
-
-- The in-memory store lives in `restaurant_offer/store.py`. Swap it for a
-  real datastore by replacing just that file; the workflow logic does not
-  change.
-- All operations return plain dicts, so they serialize to JSON directly for
-  API responses and are ready to forward to the Bedrock extraction step.
+## Git collaboration
+- Create a branch for each feature: `feature/frontend-dashboard`, `feature/bedrock`, etc.
+- Keep commits small and descriptive.
+- Open a pull request before merging into `main`.
+- Never commit AWS credentials, `.env` files, virtual environments, or `node_modules`.
