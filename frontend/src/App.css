@@ -1,6 +1,4 @@
-/* ==============================
-   BASE
-============================== */
+/* ===== RESET ===== */
 
 * {
   box-sizing: border-box;
@@ -13,9 +11,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-
   background: #ffffff;
-
   color: #0b1f3a;
 
   font-family:
@@ -23,6 +19,7 @@ body {
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
+    Arial,
     sans-serif;
 
   -webkit-font-smoothing: antialiased;
@@ -37,6 +34,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .sectionContainer {
   width: min(1180px, 88%);
   margin: 0 auto;
@@ -44,19 +46,14 @@ button {
 
 .smallLabel {
   margin: 0 0 9px;
-
   color: #07845b;
-
   font-size: 12px;
   font-weight: 800;
-
   letter-spacing: 1.7px;
 }
 
 
-/* ==============================
-   NAVIGATION
-============================== */
+/* ===== NAVBAR ===== */
 
 .navbar {
   position: sticky;
@@ -65,8 +62,7 @@ button {
 
   height: 72px;
 
-  background: rgba(255, 255, 255, 0.96);
-
+  background: rgba(255, 255, 255, 0.97);
   border-bottom: 1px solid #e6edeb;
 
   backdrop-filter: blur(10px);
@@ -86,13 +82,11 @@ button {
 .brand {
   display: flex;
   align-items: center;
-
   gap: 10px;
 
   padding: 0;
 
   border: 0;
-
   background: transparent;
 
   color: #0b1f3a;
@@ -112,7 +106,6 @@ button {
   border-radius: 9px;
 
   background: #0b9465;
-
   color: white;
 
   font-weight: 800;
@@ -121,7 +114,6 @@ button {
 .navLinks {
   display: flex;
   align-items: center;
-
   gap: 30px;
 }
 
@@ -145,7 +137,6 @@ button {
   border-radius: 8px;
 
   background: #ffffff;
-
   color: #087c55;
 
   font-size: 14px;
@@ -153,9 +144,7 @@ button {
 }
 
 
-/* ==============================
-   HERO
-============================== */
+/* ===== HERO ===== */
 
 .hero {
   padding: 95px 0;
@@ -163,7 +152,12 @@ button {
   background:
     radial-gradient(
       circle at 12% 25%,
-      rgba(218, 247, 235, 0.85),
+      rgba(218, 247, 235, 0.9),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 70%,
+      rgba(230, 248, 242, 0.75),
       transparent 30%
     ),
     #f8fbfa;
@@ -201,7 +195,6 @@ button {
   border-radius: 100px;
 
   background: #def5eb;
-
   color: #087c55;
 
   font-size: 13px;
@@ -214,11 +207,9 @@ button {
   color: #071b38;
 
   font-size: clamp(54px, 5vw, 72px);
-
   font-weight: 800;
 
   line-height: 1;
-
   letter-spacing: -3.5px;
 }
 
@@ -238,22 +229,16 @@ button {
   color: #53677c;
 
   font-size: 18px;
-
   line-height: 1.65;
 }
-
-
-/* BUTTON */
 
 .primaryButton {
   padding: 14px 22px;
 
   border: 0;
-
   border-radius: 9px;
 
   background: #0b4266;
-
   color: #ffffff;
 
   font-size: 15px;
@@ -270,25 +255,21 @@ button {
 
 .primaryButton:hover {
   background: #073451;
-
   transform: translateY(-1px);
 }
 
 
-/* HERO PANEL */
+/* ===== HERO PANEL ===== */
 
 .heroPanel {
   padding: 32px;
 
   border: 1px solid #dfe9e6;
-
   border-radius: 16px;
 
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.94);
 
-  box-shadow:
-    0 18px 50px
-    rgba(11, 31, 58, 0.07);
+  box-shadow: 0 18px 50px rgba(11, 31, 58, 0.07);
 }
 
 .heroPanel h2 {
@@ -297,7 +278,6 @@ button {
   color: #0b1f3a;
 
   font-size: 26px;
-
   line-height: 1.25;
 
   letter-spacing: -0.8px;
@@ -305,7 +285,6 @@ button {
 
 .miniSteps {
   display: grid;
-
   gap: 5px;
 }
 
@@ -336,17 +315,15 @@ button {
 }
 
 
-/* ==============================
-   REQUEST SECTION
-============================== */
+/* ===== REQUEST ===== */
 
 .requestSection {
   padding: 85px 0;
-
   background: #ffffff;
 }
 
-.sectionHeading {
+.sectionHeading,
+.resultsHeading {
   margin-bottom: 30px;
 
   display: flex;
@@ -363,7 +340,6 @@ button {
   color: #0b1f3a;
 
   font-size: 36px;
-
   line-height: 1.15;
 
   letter-spacing: -1.3px;
@@ -393,7 +369,6 @@ button {
   border-radius: 100px;
 
   background: #e1f6ed;
-
   color: #087c55;
 
   font-size: 12px;
@@ -409,14 +384,10 @@ button {
   background: #0b9465;
 }
 
-
-/* REQUEST CARD */
-
 .requestCard {
   padding: 30px;
 
   border: 1px solid #dfe7e5;
-
   border-radius: 14px;
 
   background: #fbfdfc;
@@ -425,8 +396,7 @@ button {
 .requestForm {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 18px;
 }
@@ -457,7 +427,6 @@ button {
   outline: none;
 
   background: white;
-
   color: #0b1f3a;
 
   font-size: 15px;
@@ -467,14 +436,11 @@ button {
 .requestForm input:focus {
   border-color: #0b9465;
 
-  box-shadow:
-    0 0 0 3px
-    rgba(11, 148, 101, 0.08);
+  box-shadow: 0 0 0 3px rgba(11, 148, 101, 0.08);
 }
 
 .requestAction {
   margin-top: 24px;
-
   padding-top: 22px;
 
   display: flex;
@@ -495,9 +461,7 @@ button {
 }
 
 
-/* ==============================
-   RESULTS
-============================== */
+/* ===== RESULTS ===== */
 
 .resultsSection {
   padding: 85px 0;
@@ -506,16 +470,6 @@ button {
 
   border-top: 1px solid #e5ecea;
   border-bottom: 1px solid #e5ecea;
-}
-
-.resultsHeading {
-  margin-bottom: 30px;
-
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-
-  gap: 30px;
 }
 
 .coverage {
@@ -552,15 +506,12 @@ button {
 }
 
 
-/* ==============================
-   OFFERS
-============================== */
+/* ===== OFFERS ===== */
 
 .offersGrid {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 18px;
 }
@@ -572,10 +523,12 @@ button {
   border-radius: 12px;
 
   background: #ffffff;
+
+  box-shadow: 0 5px 18px rgba(11, 31, 58, 0.025);
 }
 
 .offerLate {
-  opacity: 0.6;
+  opacity: 0.62;
 }
 
 .offerHeader {
@@ -617,13 +570,11 @@ button {
 
 .recommendedTag {
   background: #def5eb;
-
   color: #087c55;
 }
 
 .lateTag {
   background: #fff0df;
-
   color: #a26113;
 }
 
@@ -632,8 +583,7 @@ button {
 
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 10px;
 }
@@ -682,9 +632,7 @@ button {
 }
 
 
-/* ==============================
-   RECOMMENDATION
-============================== */
+/* ===== AI RECOMMENDATION ===== */
 
 .recommendationCard {
   margin-top: 22px;
@@ -709,7 +657,6 @@ button {
 
 .recommendationContent {
   display: flex;
-
   gap: 15px;
 }
 
@@ -725,7 +672,6 @@ button {
   border-radius: 9px;
 
   background: #0b9465;
-
   color: white;
 }
 
@@ -743,7 +689,6 @@ button {
   color: #536c62;
 
   font-size: 13px;
-
   line-height: 1.55;
 }
 
@@ -759,16 +704,13 @@ button {
   display: flex;
   flex-direction: column;
 
-  align-items: stretch;
-
   gap: 18px;
 }
 
 .recommendationStats {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 18px;
 }
@@ -812,12 +754,46 @@ button {
   background: #0b9465;
 }
 
+.approveButton:hover {
+  background: #087c55;
+}
+
 .approvedButton {
   background: #0b4266;
 }
 
 
-/* SUCCESS */
+/* ===== MESSAGES ===== */
+
+.errorMessage {
+  margin-top: 18px;
+  padding: 12px 14px;
+
+  border: 1px solid #f0caca;
+  border-radius: 8px;
+
+  background: #fff5f5;
+  color: #9b3434;
+
+  font-size: 13px;
+}
+
+.shortfallWarning {
+  margin-top: 16px;
+  padding: 16px 18px;
+
+  border: 1px solid #efd6aa;
+  border-radius: 10px;
+
+  background: #fff8eb;
+  color: #79501a;
+}
+
+.shortfallWarning p {
+  margin: 4px 0 0;
+
+  font-size: 12px;
+}
 
 .successBanner {
   margin-top: 16px;
@@ -847,7 +823,6 @@ button {
   border-radius: 50%;
 
   background: #0b9465;
-
   color: white;
 
   font-weight: 800;
@@ -868,9 +843,7 @@ button {
 }
 
 
-/* ==============================
-   HOW IT WORKS
-============================== */
+/* ===== HOW IT WORKS ===== */
 
 .howSection {
   padding: 90px 0;
@@ -890,7 +863,6 @@ button {
   color: #0b1f3a;
 
   font-size: 36px;
-
   line-height: 1.15;
 
   letter-spacing: -1.4px;
@@ -899,8 +871,7 @@ button {
 .stepsGrid {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
   gap: 20px;
 }
@@ -934,14 +905,11 @@ button {
   color: #65778a;
 
   font-size: 13px;
-
   line-height: 1.6;
 }
 
 
-/* ==============================
-   FOOTER
-============================== */
+/* ===== FOOTER ===== */
 
 footer {
   padding: 25px 0;
@@ -986,15 +954,11 @@ footer p {
 }
 
 
-/* ==============================
-   RESPONSIVE
-============================== */
+/* ===== RESPONSIVE ===== */
 
 @media (max-width: 1000px) {
-
   .heroInner {
     grid-template-columns: 1fr;
-
     gap: 50px;
   }
 
@@ -1005,12 +969,9 @@ footer p {
   .recommendationCard {
     grid-template-columns: 1fr;
   }
-
 }
 
-
 @media (max-width: 780px) {
-
   .navLinks a {
     display: none;
   }
@@ -1026,7 +987,6 @@ footer p {
   .sectionHeading,
   .resultsHeading {
     flex-direction: column;
-
     align-items: flex-start;
   }
 
@@ -1038,19 +998,15 @@ footer p {
 
   .requestAction {
     flex-direction: column;
-
     align-items: stretch;
   }
 
   .requestAction .primaryButton {
     width: 100%;
   }
-
 }
 
-
 @media (max-width: 520px) {
-
   .sectionContainer,
   .heroInner,
   .navInner,
@@ -1060,7 +1016,6 @@ footer p {
 
   .heroContent h1 {
     font-size: 44px;
-
     letter-spacing: -2px;
   }
 
@@ -1076,8 +1031,6 @@ footer p {
 
   .footerInner {
     flex-direction: column;
-
     gap: 10px;
   }
-
 }
