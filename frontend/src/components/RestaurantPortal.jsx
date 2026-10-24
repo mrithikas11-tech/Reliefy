@@ -1,271 +1,513 @@
 import { useState } from "react";
-import { submitOffer, updateOffer, cancelOffer } from "../services/api.js";
+import {
+  submitOffer,
+  updateOffer,
+  cancelOffer,
+} from "../services/api.js";
 
-// Shravya: Restaurant Partner experience.
-// Talks to the backend /offers endpoints via the restaurant_offer workflow.
-// The natural-language message is preserved EXACTLY as entered (never trimmed
-// or reformatted) because it is sent to Amazon Bedrock for AI extraction
-// downstream. "Cancelled" is a terminal state (mirrors the Python workflow):
-// once cancelled, an offer can no longer be updated.
-
-// Mock shelter need (hardcoded for the MVP demo).
-const MOCK_NEED = {
+const ACTIVE_REQUEST = {
+  location: "San José State University",
+  address: "One Washington Square, San José, CA",
   meals: 200,
   budget: 2000,
-  readyBy: "6:00 PM",
+  deadline: "6:00 PM",
+  priority: "Urgent",
 };
 
-// The backend returns lowercase statuses (active/updated/cancelled). Display
-// them capitalized WITHOUT changing the stored value from the backend.
-function displayStatus(status) {
-  if (!status) return "";
+function formatStatus(status) {
+  if (!status) return "Active";
+
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
-export default function RestaurantPortal() {
-  // Form inputs.
+function RestaurantPortal() {
   const [restaurantName, setRestaurantName] = useState("");
   const [message, setMessage] = useState("");
 
-  // The offer dict exactly as returned by the backend
-  // ({ offer_id, restaurant_name, message, status, created_at, updated_at }).
   const [offer, setOffer] = useState(null);
 
-  // Inline-edit state for the Update flow.
   const [editing, setEditing] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
 
-  // Network state so the UI never fails silently.
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
 
   const isCancelled = offer?.status === "cancelled";
 
+  function showToast(text) {
+    setToast(text);
+
+    window.setTimeout(() => {
+      setToast("");
+    }, 2600);
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
-    // Preserve the message verbatim. Only guard against an empty submission.
-    if (!restaurantName.trim() || !message.trim()) return;
+
+    if (!restaurantName.trim() || !message.trim()) {
+      setError(
+        "Enter your restaurant name and describe your offer."
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
+
     try {
       const saved = await submitOffer({
         restaurant_name: restaurantName,
-        message, // exact natural-language text, untouched
+        message,
       });
+
       setOffer(saved);
       setEditing(false);
+
+      showToast(
+        "Offer submitted. The relief coordinator can now review it."
+      );
     } catch (err) {
-      setError(err.message || "Could not submit the offer. Is the API running?");
+      setError(
+        err.message ||
+          "Could not submit the offer. Make sure the Reliefy API is running."
+      );
     } finally {
       setLoading(false);
     }
   }
 
   function startEdit() {
-    if (isCancelled) return; // terminal state guard
+    if (!offer || isCancelled) return;
+
     setDraftMessage(offer.message);
-    setError("");
     setEditing(true);
+    setError("");
   }
 
-  async function handleSaveEdit() {
-    if (isCancelled) return; // terminal state guard
-    // Reject an empty/whitespace-only draft, but send the original text
-    // untouched so the natural-language message stays intact for Bedrock.
-    if (!draftMessage.trim()) return;
+  function discardEdit() {
+    setEditing(false);
+    setDraftMessage("");
+    setError("");
+  }
+
+  async function saveEdit() {
+    if (!offer || isCancelled || !draftMessage.trim()) {
+      return;
+    }
+
     setLoading(true);
     setError("");
+
     try {
       const saved = await updateOffer(offer.offer_id, {
-        message: draftMessage, // exact text as edited, untouched
+        message: draftMessage,
       });
+
       setOffer(saved);
       setEditing(false);
+
+      showToast(
+        "Offer updated. The coordinator will see your latest availability."
+      );
     } catch (err) {
-      setError(err.message || "Could not update the offer. Is the API running?");
+      setError(
+        err.message ||
+          "Could not update the offer. Make sure the Reliefy API is running."
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  function handleDiscardEdit() {
-    setEditing(false);
-  }
+  async function handleCancel() {
+    if (!offer || isCancelled) return;
 
-  async function handleCancelOffer() {
+    const confirmed = window.confirm(
+      "Cancel this offer? The coordinator will no longer be able to use it."
+    );
+
+    if (!confirmed) return;
+
     setLoading(true);
     setError("");
+
     try {
       const saved = await cancelOffer(offer.offer_id);
+
       setOffer(saved);
       setEditing(false);
+
+      showToast(
+        "Offer cancelled. The coordinator will see the updated status."
+      );
     } catch (err) {
-      setError(err.message || "Could not cancel the offer. Is the API running?");
+      setError(
+        err.message ||
+          "Could not cancel the offer. Make sure the Reliefy API is running."
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  // Map status -> pill class, reusing existing design tokens.
   const statusClass =
     offer?.status === "cancelled"
-      ? "offerStatus offerStatusCancelled"
+      ? "restaurantOfferStatus cancelled"
       : offer?.status === "updated"
-        ? "offerStatus offerStatusUpdated"
-        : "offerStatus";
+        ? "restaurantOfferStatus updated"
+        : "restaurantOfferStatus active";
 
   return (
-    <main className="main restaurantMain" id="restaurants">
-      <section className="requestCard restaurantIntro">
-        <p className="eyebrow">RESTAURANT PORTAL</p>
-        <h2>Restaurant Partner Portal</h2>
-        <p className="description">
-          Local restaurants can respond to emergency meal requests from relief
-          coordinators. Tell us what you can prepare in plain language and
-          submit your offer — no forms to decode, just describe what you can do.
-        </p>
+    <main className="restaurantPortalPage">
+      {toast && (
+        <div className="offerToast">
+          <div className="toastIcon">✓</div>
 
-        {/* MOCK SHELTER NEED */}
-        <div className="needCard">
-          <p className="needHeading">Current shelter need</p>
-          <div className="needMetrics">
-            <div>
-              <span>Meals needed</span>
-              <strong>{MOCK_NEED.meals}</strong>
-            </div>
-            <div>
-              <span>Budget</span>
-              <strong>${MOCK_NEED.budget.toLocaleString()}</strong>
-            </div>
-            <div>
-              <span>Needed by</span>
-              <strong>{MOCK_NEED.readyBy}</strong>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* OFFER FORM */}
-      <section className="requestCard">
-        <div className="cardHeader">
           <div>
-            <p className="eyebrow">SUBMIT AN OFFER</p>
-            <h2>What can you provide?</h2>
+            <strong>Relify update</strong>
+            <span>{toast}</span>
+          </div>
+        </div>
+      )}
+
+      {/* HEADER */}
+
+      <header className="restaurantPortalHeader">
+        <div>
+          <span className="eyebrow">
+            RESTAURANT PARTNER PORTAL
+          </span>
+
+          <h1>Help your community with food.</h1>
+
+          <p>
+            View active relief needs, submit meal availability,
+            and manage your commitment in one place.
+          </p>
+        </div>
+
+        <div className="partnerNetworkBadge">
+          <span></span>
+          Partner Network
+        </div>
+      </header>
+
+      {/* ACTIVE REQUEST */}
+
+      <section className="activeReliefRequest">
+        <div className="activeRequestHeader">
+          <div>
+            <span className="activeRequestLabel">
+              ACTIVE RELIEF REQUEST
+            </span>
+
+            <h2>{ACTIVE_REQUEST.location}</h2>
+
+            <p>⌖ {ACTIVE_REQUEST.address}</p>
+          </div>
+
+          <span className="urgentRestaurantBadge">
+            ● {ACTIVE_REQUEST.priority}
+          </span>
+        </div>
+
+        <div className="restaurantRequestMetrics">
+          <div>
+            <span>Meals needed</span>
+            <strong>{ACTIVE_REQUEST.meals}</strong>
+          </div>
+
+          <div>
+            <span>Available budget</span>
+            <strong>
+              ${ACTIVE_REQUEST.budget.toLocaleString()}
+            </strong>
+          </div>
+
+          <div>
+            <span>Needed by</span>
+            <strong>{ACTIVE_REQUEST.deadline}</strong>
+          </div>
+
+          <div>
+            <span>Relief site</span>
+            <strong>SJSU</strong>
           </div>
         </div>
 
-        <form className="requestForm restaurantForm" onSubmit={handleSubmit}>
-          <label className="stackedLabel">
-            Restaurant Name
-            <input
-              type="text"
-              required
-              placeholder="Example: Tony's Kitchen"
-              value={restaurantName}
-              onChange={(e) => setRestaurantName(e.target.value)}
-            />
-          </label>
+        <div className="requestExplanation">
+          <div>i</div>
 
-          <label className="stackedLabel">
-            What can you provide?
-            <textarea
-              className="offerTextarea"
-              required
-              rows={4}
-              placeholder="Example: We can prepare 80 vegetarian meals for $8 each, ready by 4 PM."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-          </label>
+          <p>
+            <strong>How you can help</strong>
 
-          <button className="findButton" type="submit" disabled={loading}>
-            {loading && !offer ? "Submitting…" : "Submit Offer →"}
-          </button>
-        </form>
-
-        {error && !offer && <p className="errorMessage">{error}</p>}
+            <span>
+              Submit the number of meals you can prepare,
+              pricing, dietary options, and when they will be
+              ready. Reliefy helps the coordinator compare
+              participating offers.
+            </span>
+          </p>
+        </div>
       </section>
 
-      {/* OFFER CONFIRMATION */}
+      {/* MAIN PORTAL */}
+
+      <div className="restaurantPortalColumns">
+        <section className="restaurantSubmitPanel">
+          <div className="restaurantPanelHeader">
+            <div>
+              <span className="eyebrow">SUBMIT AN OFFER</span>
+
+              <h2>What can you provide?</h2>
+
+              <p>
+                Describe your availability naturally. Your
+                original message is preserved for processing.
+              </p>
+            </div>
+
+            <span className="restaurantStepNumber">01</span>
+          </div>
+
+          <form
+            className="restaurantSubmissionForm"
+            onSubmit={handleSubmit}
+          >
+            <label>
+              Restaurant name
+
+              <input
+                type="text"
+                required
+                placeholder="Example: Peanuts Deluxe Cafe"
+                value={restaurantName}
+                onChange={(event) =>
+                  setRestaurantName(event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              Describe your offer
+
+              <textarea
+                required
+                rows={6}
+                placeholder="Example: We can prepare 80 vegetarian meals for $8 each, ready by 4 PM."
+                value={message}
+                onChange={(event) =>
+                  setMessage(event.target.value)
+                }
+              />
+            </label>
+
+            <div className="restaurantExample">
+              <span>EXAMPLE OFFER</span>
+
+              <p>
+                “We can prepare 80 vegetarian meals for $8
+                each, ready by 4 PM.”
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              className="restaurantPrimaryButton"
+              disabled={loading}
+            >
+              {loading && !offer
+                ? "Submitting…"
+                : "Submit Offer →"}
+            </button>
+          </form>
+
+          {error && !offer && (
+            <div className="restaurantError">
+              ⚠ {error}
+            </div>
+          )}
+        </section>
+
+        {/* HOW IT WORKS */}
+
+        <aside className="restaurantGuide">
+          <span className="eyebrow">HOW IT WORKS</span>
+
+          <h3>From kitchen to relief site.</h3>
+
+          <div className="restaurantGuideSteps">
+            <div>
+              <span>1</span>
+
+              <p>
+                <strong>Submit availability</strong>
+                <small>
+                  Tell Reliefy what your kitchen can provide.
+                </small>
+              </p>
+            </div>
+
+            <div>
+              <span>2</span>
+
+              <p>
+                <strong>Offer is structured</strong>
+                <small>
+                  Reliefy converts the response into
+                  coordination data.
+                </small>
+              </p>
+            </div>
+
+            <div>
+              <span>3</span>
+
+              <p>
+                <strong>Coordinator reviews</strong>
+                <small>
+                  Your offer can be compared with other
+                  available options.
+                </small>
+              </p>
+            </div>
+
+            <div>
+              <span>4</span>
+
+              <p>
+                <strong>Stay in control</strong>
+                <small>
+                  Update or cancel your commitment if
+                  circumstances change.
+                </small>
+              </p>
+            </div>
+          </div>
+
+          <div className="restaurantGuideNotice">
+            <strong>Only commit what you can deliver.</strong>
+
+            <p>
+              Relief coordinators depend on accurate meal
+              quantities and preparation times.
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      {/* CURRENT OFFER */}
+
       {offer && (
         <section
           className={
-            isCancelled ? "requestCard offerConfirm isCancelled" : "requestCard offerConfirm"
+            isCancelled
+              ? "restaurantCurrentOffer restaurantCurrentOfferCancelled"
+              : "restaurantCurrentOffer"
           }
         >
-          <div className="cardHeader">
+          <div className="currentOfferHeader">
             <div>
-              <p className="eyebrow">YOUR OFFER</p>
+              <span className="eyebrow">
+                YOUR CURRENT OFFER
+              </span>
+
               <h2>{offer.restaurant_name}</h2>
             </div>
-            <span className={statusClass}>{displayStatus(offer.status)}</span>
+
+            <span className={statusClass}>
+              ● {formatStatus(offer.status)}
+            </span>
           </div>
 
           {editing ? (
-            <>
-              <label className="stackedLabel">
-                Update your message
+            <div className="restaurantEditOffer">
+              <label>
+                Update your offer
+
                 <textarea
-                  className="offerTextarea"
-                  rows={4}
+                  rows={5}
                   value={draftMessage}
-                  onChange={(e) => setDraftMessage(e.target.value)}
+                  onChange={(event) =>
+                    setDraftMessage(event.target.value)
+                  }
                 />
               </label>
-              <div className="offerActions">
+
+              <div className="restaurantOfferButtons">
                 <button
-                  className="findButton"
                   type="button"
-                  onClick={handleSaveEdit}
+                  className="restaurantPrimaryButton"
+                  onClick={saveEdit}
                   disabled={loading}
                 >
                   {loading ? "Saving…" : "Save Changes"}
                 </button>
+
                 <button
-                  className="outlineButton"
                   type="button"
-                  onClick={handleDiscardEdit}
+                  className="restaurantOutlineButton"
+                  onClick={discardEdit}
                   disabled={loading}
                 >
                   Discard
                 </button>
               </div>
-            </>
+            </div>
           ) : (
             <>
-              <p className="offerMessageLabel">Offer message</p>
-              <p className="offerMessage">{offer.message}</p>
+              <div className="restaurantMessageBox">
+                <span>OFFER MESSAGE</span>
+
+                <p>“{offer.message}”</p>
+              </div>
 
               {isCancelled ? (
-                <p className="cancelledNotice">
-                  This offer has been cancelled and can no longer be updated.
-                </p>
+                <div className="restaurantCancelledNotice">
+                  <strong>Offer cancelled</strong>
+
+                  <span>
+                    This offer is no longer available to the
+                    coordinator and cannot be updated.
+                  </span>
+                </div>
               ) : (
-                <div className="offerActions">
+                <div className="restaurantOfferButtons">
                   <button
-                    className="outlineButton"
                     type="button"
+                    className="restaurantOutlineButton"
                     onClick={startEdit}
                     disabled={loading}
                   >
-                    Update Offer
+                    ✎ Update Offer
                   </button>
+
                   <button
-                    className="dangerButton"
                     type="button"
-                    onClick={handleCancelOffer}
+                    className="restaurantCancelButton"
+                    onClick={handleCancel}
                     disabled={loading}
                   >
-                    {loading ? "Working…" : "Cancel Offer"}
+                    {loading
+                      ? "Working…"
+                      : "Cancel Offer"}
                   </button>
                 </div>
               )}
             </>
           )}
 
-          {error && offer && <p className="errorMessage">{error}</p>}
+          {error && offer && (
+            <div className="restaurantError">
+              ⚠ {error}
+            </div>
+          )}
         </section>
       )}
     </main>
   );
 }
+
+export default RestaurantPortal;
