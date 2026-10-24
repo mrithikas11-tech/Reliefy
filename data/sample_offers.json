@@ -1,0 +1,23 @@
+[
+  {
+    "restaurant": "Restaurant A",
+    "meals": 80,
+    "total_cost": 640,
+    "ready_time": "16:00",
+    "message": "We can provide 80 meals for $640, ready at 4 PM."
+  },
+  {
+    "restaurant": "Restaurant B",
+    "meals": 120,
+    "total_cost": 960,
+    "ready_time": "17:00",
+    "message": "We can provide 120 meals for $960, ready at 5 PM."
+  },
+  {
+    "restaurant": "Restaurant C",
+    "meals": 60,
+    "total_cost": 600,
+    "ready_time": "19:00",
+    "message": "We can provide 60 meals for $600, ready at 7 PM."
+  }
+]

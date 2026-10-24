@@ -1,0 +1,16 @@
+{
+  "baseline": {
+    "meals_needed": 200,
+    "budget": 2000,
+    "deadline": "18:00",
+    "cancelled_restaurants": []
+  },
+  "restaurant_b_cancels": {
+    "meals_needed": 200,
+    "budget": 2000,
+    "deadline": "18:00",
+    "cancelled_restaurants": [
+      "Restaurant B"
+    ]
+  }
+}
