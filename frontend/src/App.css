@@ -1,0 +1,700 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  color: #071b3d;
+  background: #ffffff;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* ---------- NAVBAR ---------- */
+
+.navbar {
+  height: 76px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid #e8eeee;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 25px;
+  font-weight: 800;
+  color: #071b3d;
+}
+
+.logoMark {
+  width: 39px;
+  height: 39px;
+  border-radius: 10px;
+  background: #0c9b68;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+.navLinks a {
+  color: #193654;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.navLinks a:hover {
+  color: #0c9b68;
+}
+
+.outlineButton {
+  border: 1.5px solid #0c9b68;
+  color: #087d55;
+  background: white;
+  padding: 11px 23px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* ---------- HERO ---------- */
+
+.main {
+  min-height: 570px;
+  padding: 65px 6%;
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  align-items: center;
+  gap: 70px;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(213, 245, 232, 0.8),
+      transparent 31%
+    ),
+    radial-gradient(
+      circle at 90% 65%,
+      rgba(224, 247, 241, 0.8),
+      transparent 35%
+    ),
+    #f8fcfb;
+}
+
+/* badge */
+
+.badge {
+  display: inline-block;
+  background: #dff5ec;
+  color: #07865a;
+  padding: 9px 17px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 750;
+  margin-bottom: 27px;
+}
+
+/* BIG HERO TEXT */
+
+.heroSection h1 {
+  margin: 0 0 24px;
+  font-size: clamp(56px, 5.7vw, 82px);
+  line-height: 0.98;
+  letter-spacing: -4px;
+  font-weight: 850;
+
+  /* DARKER */
+  color: #061a3a;
+}
+
+.heroSection h1 span {
+  color: #119b75;
+}
+
+.heroSection > p {
+  max-width: 620px;
+  color: #526982;
+  font-size: 18px;
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+/* BUTTONS */
+
+.primaryButton,
+.findButton {
+  border: none;
+  color: white;
+  font-weight: 750;
+  border-radius: 10px;
+
+  /* DARK NAVY */
+  background: #073456;
+
+  box-shadow: 0 5px 14px rgba(7, 52, 86, 0.13);
+  transition: 0.2s ease;
+}
+
+.primaryButton:hover,
+.findButton:hover {
+  background: #052944;
+  transform: translateY(-1px);
+}
+
+.primaryButton {
+  padding: 16px 28px;
+  margin-top: 7px;
+  font-size: 16px;
+}
+
+/* ---------- REQUEST CARD ---------- */
+
+.requestCard {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e0ebe7;
+  border-radius: 17px;
+  padding: 31px;
+
+  box-shadow: 0 18px 55px rgba(12, 39, 63, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.eyebrow {
+  color: #07885b;
+  font-size: 12px;
+  letter-spacing: 1.7px;
+  font-weight: 850;
+  margin: 0 0 8px;
+}
+
+/* CREATE A MEAL REQUEST — DARKER */
+
+.requestCard h2 {
+  margin: 0;
+
+  color: #061a3a;
+
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 850;
+  letter-spacing: -0.8px;
+}
+
+.status {
+  color: #07875a;
+  background: #dff7ee;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.description {
+  color: #596d82;
+  margin: 15px 0 27px;
+  font-size: 15px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+}
+
+.formGrid label {
+  color: #102d4a;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.formGrid input {
+  width: 100%;
+  margin-top: 9px;
+  padding: 14px 14px;
+  border: 1px solid #cfdcdd;
+  border-radius: 9px;
+  outline: none;
+  color: #173451;
+  background: white;
+}
+
+.formGrid input:focus {
+  border-color: #0c9b68;
+  box-shadow: 0 0 0 3px rgba(12, 155, 104, 0.09);
+}
+
+.findButton {
+  width: 100%;
+  padding: 16px;
+  margin-top: 25px;
+  font-size: 16px;
+}
+
+/* ---------- HOW IT WORKS ---------- */
+
+.howSection {
+  padding: 55px 6% 80px;
+  background: white;
+  text-align: center;
+}
+
+/* DARKER */
+
+.howSection > h2 {
+  max-width: 1000px;
+  margin: 10px auto 38px;
+
+  color: #061a3a;
+
+  font-size: clamp(35px, 4vw, 51px);
+  line-height: 1.1;
+  font-weight: 850;
+  letter-spacing: -2px;
+}
+
+.steps {
+  max-width: 1180px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.step {
+  padding: 27px 29px;
+  border: 1px solid #e0e9e7;
+  border-radius: 15px;
+  text-align: left;
+  background: white;
+
+  box-shadow: 0 5px 18px rgba(11, 37, 69, 0.035);
+}
+
+.step span {
+  color: #079363;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.step h3 {
+  color: #071b3d;
+  font-size: 20px;
+  margin: 10px 0 7px;
+}
+
+.step p {
+  color: #607287;
+  line-height: 1.55;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+    gap: 45px;
+  }
+
+  .navLinks a {
+    display: none;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .heroSection h1 {
+    font-size: 56px;
+  }
+}
+
+@media (max-width: 520px) {
+  .navbar {
+    padding: 0 5%;
+  }
+
+  .main {
+    padding: 45px 5%;
+  }
+
+  .howSection {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .heroSection h1 {
+    font-size: 48px;
+    letter-spacing: -2.5px;
+  }
+
+  .requestCard {
+    padding: 22px;
+  }
+
+  .status {
+    display: none;
+  }
+}
+/* ---------- RESULTS (from main's /analyze flow) ---------- */
+
+.findButton:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.errorMessage {
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #9b2525;
+  background: #fff0f0;
+  font-size: 14px;
+}
+
+.resultsSection {
+  padding: 10px 6% 55px;
+  background: #f8fcfb;
+}
+
+.resultsCard {
+  max-width: 920px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #e0ebe7;
+  border-radius: 17px;
+  padding: 31px;
+  box-shadow: 0 18px 55px rgba(12, 39, 63, 0.08);
+}
+
+.resultsCard h2 {
+  margin: 0;
+  color: #061a3a;
+  font-size: 30px;
+  font-weight: 850;
+  letter-spacing: -0.8px;
+}
+
+.resultsCard h3 {
+  color: #071b3d;
+  font-size: 18px;
+  margin: 24px 0 8px;
+}
+
+.resultStatus {
+  color: #755b17;
+  background: #fff5d5;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 24px 0 0;
+}
+
+.metrics div {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f9f8;
+}
+
+.metrics span {
+  color: #607287;
+  font-size: 12px;
+}
+
+.metrics strong {
+  color: #061a3a;
+  font-size: 22px;
+}
+
+.offerList {
+  margin: 0;
+  padding-left: 20px;
+  color: #193654;
+  font-size: 15px;
+}
+
+.offerList li {
+  margin: 10px 0;
+}
+
+.resultNote {
+  color: #607287;
+  font-size: 13px;
+}
+
+.siteFooter {
+  padding: 22px 6%;
+  text-align: center;
+  color: #607287;
+  font-size: 13px;
+  background: white;
+  border-top: 1px solid #e8eeee;
+}
+
+@media (max-width: 900px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .resultsCard {
+    padding: 22px;
+  }
+}
+
+/* index.css (Vite template) centers #root; keep card content left-aligned */
+.requestCard,
+.resultsCard {
+  text-align: left;
+}
+
+/* keep the results header from overflowing on narrow screens */
+.resultsCard .cardHeader {
+  flex-wrap: wrap;
+}
+
+.resultStatus {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- RESTAURANT PARTNER PORTAL (Shravya) ---------- */
+/* Appended only. Reuses the existing navy / green / white design system. */
+
+.restaurantMain {
+  display: block;
+  min-height: auto;
+  padding-top: 55px;
+  padding-bottom: 55px;
+}
+
+.restaurantMain .requestCard {
+  max-width: 920px;
+  margin: 0 auto 24px;
+}
+
+.restaurantIntro .description {
+  max-width: 640px;
+}
+
+/* Mock shelter need */
+.needCard {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #e0ebe7;
+  border-radius: 14px;
+  background: #f8fcfb;
+}
+
+.needHeading {
+  color: #07885b;
+  font-size: 12px;
+  letter-spacing: 1.7px;
+  font-weight: 850;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.needMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.needMetrics div {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #e8eeee;
+}
+
+.needMetrics span {
+  color: #607287;
+  font-size: 12px;
+}
+
+.needMetrics strong {
+  color: #061a3a;
+  font-size: 22px;
+}
+
+/* Stacked form fields (name + textarea) */
+.restaurantForm {
+  margin-top: 6px;
+}
+
+.stackedLabel {
+  display: block;
+  color: #102d4a;
+  font-size: 13px;
+  font-weight: 750;
+  margin-bottom: 18px;
+}
+
+.stackedLabel input,
+.offerTextarea {
+  width: 100%;
+  margin-top: 9px;
+  padding: 14px;
+  border: 1px solid #cfdcdd;
+  border-radius: 9px;
+  outline: none;
+  color: #173451;
+  background: white;
+  font-family: inherit;
+}
+
+.offerTextarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.stackedLabel input:focus,
+.offerTextarea:focus {
+  border-color: #0c9b68;
+  box-shadow: 0 0 0 3px rgba(12, 155, 104, 0.09);
+}
+
+/* Offer confirmation card */
+.offerConfirm .offerMessageLabel {
+  color: #607287;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin: 18px 0 8px;
+}
+
+.offerConfirm .offerMessage {
+  color: #173451;
+  font-size: 16px;
+  line-height: 1.55;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f9f8;
+  border: 1px solid #e8eeee;
+  /* Preserve the message exactly as entered, including line breaks. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Status pills reuse the existing pill shapes */
+.offerStatus {
+  color: #07875a;
+  background: #dff7ee;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.offerStatusUpdated {
+  color: #755b17;
+  background: #fff5d5;
+}
+
+.offerStatusCancelled {
+  color: #9b2525;
+  background: #fdecec;
+}
+
+/* Action buttons */
+.offerActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.dangerButton {
+  border: 1.5px solid #e0b4b4;
+  color: #9b2525;
+  background: white;
+  padding: 11px 23px;
+  border-radius: 10px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.dangerButton:hover {
+  background: #fdecec;
+}
+
+/* Cancelled state — make it visually obvious */
+.offerConfirm.isCancelled {
+  border-color: #e9c9c9;
+  background: #fdf6f6;
+  opacity: 0.92;
+}
+
+.offerConfirm.isCancelled .offerMessage {
+  background: #faeeee;
+  border-color: #f0d6d6;
+}
+
+.cancelledNotice {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #9b2525;
+  background: #fdecec;
+  border: 1px solid #f0d6d6;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .needMetrics {
+    grid-template-columns: 1fr;
+  }
+}

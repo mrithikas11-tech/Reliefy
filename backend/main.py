@@ -4,14 +4,20 @@ from pydantic import BaseModel, Field
 from botocore.exceptions import BotoCoreError, ClientError
 
 from backend.bedrock_client import extract_offer
+from backend.schemas import SubmitOfferRequest, UpdateOfferRequest
 from matching.matcher import choose_offers
 from matching.offer_schema import DEMO_OFFERS
+from restaurant_offer import submit_offer, update_offer, cancel_offer
 
 app = FastAPI(title="Reliefy API", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+   allow_origins=[
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5175",
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -68,3 +74,39 @@ def analyze(request: AnalyzeRequest):
         "before real-world use."
     )
     return result
+
+
+# ---------------------------------------------------------------------------
+# Restaurant Offer Workflow (Shravya)
+# Thin HTTP layer over the framework-agnostic restaurant_offer package.
+# ValueError -> 400 (invalid input / invalid state)
+# KeyError   -> 404 (offer_id not found)
+# ---------------------------------------------------------------------------
+
+
+@app.post("/offers")
+def create_offer(request: SubmitOfferRequest):
+    try:
+        return submit_offer(request.restaurant_name, request.message)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.put("/offers/{offer_id}")
+def edit_offer(offer_id: str, request: UpdateOfferRequest):
+    try:
+        return update_offer(offer_id, request.message)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/offers/{offer_id}/cancel")
+def cancel_existing_offer(offer_id: str):
+    try:
+        return cancel_offer(offer_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
